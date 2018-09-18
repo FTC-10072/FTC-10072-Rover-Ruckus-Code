@@ -1,25 +1,8 @@
 dependencies {
-<<<<<<< HEAD
-<<<<<<< HEAD
     api (name:'Inspection-release', ext: 'aar')
     api (name:'Blocks-release', ext: 'aar')
     api (name:'RobotCore-release', ext: 'aar')
     api (name:'Hardware-release', ext: 'aar')
     api (name:'FtcCommon-release', ext: 'aar')
     api (name:'WirelessP2p-release', ext:'aar')
-=======
-=======
->>>>>>> parent of a8c58f9... Init Commit
-    compile (name:'Inspection-release', ext: 'aar')
-    compile (name:'Blocks-release', ext: 'aar')
-    compile (name:'RobotCore-release', ext: 'aar')
-    compile (name:'Hardware-release', ext: 'aar')
-    compile (name:'FtcCommon-release', ext: 'aar')
-<<<<<<< HEAD
-    compile (name:'Analytics-release', ext:'aar')
-    compile (name:'WirelessP2p-release', ext:'aar')
->>>>>>> parent of 612f456... v4.0 changes.
-=======
-    compile (name:'WirelessP2p-release', ext:'aar')
->>>>>>> parent of a8c58f9... Init Commit
 }
