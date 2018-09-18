@@ -50,12 +50,10 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -120,15 +118,11 @@ import org.firstinspires.ftc.robotcore.internal.ui.UILocation;
 import org.firstinspires.ftc.robotcore.internal.webserver.RobotControllerWebInfo;
 import org.firstinspires.ftc.robotcore.internal.webserver.WebServer;
 import org.firstinspires.inspection.RcInspectionActivity;
-import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.JavaCameraView;
-import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.android.OpenCVLoader;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+<<<<<<< HEAD
 import ftc.vision.FrameGrabber;
 import ftc.vision.MineralProcessor;
 
@@ -231,6 +225,11 @@ public class FtcRobotControllerActivity extends Activity
       };
 
       ////////////// END VISION PROCESSING CODE //////////////
+=======
+@SuppressWarnings("WeakerAccess")
+public class FtcRobotControllerActivity extends Activity
+  {
+>>>>>>> parent of b3f90fc... Added OpenCV support
   public static final String TAG = "RCActivity";
   public String getTag() { return TAG; }
 
