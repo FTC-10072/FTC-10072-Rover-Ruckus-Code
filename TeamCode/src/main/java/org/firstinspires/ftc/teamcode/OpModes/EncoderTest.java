@@ -11,12 +11,12 @@ import org.firstinspires.ftc.teamcode.RobotClasses.HardwareRobot;
 public class EncoderTest  extends LinearOpMode {
 
     HardwareRobot robot = new HardwareRobot();
-    DriveTrain driveTrain;
+    DriveTrain driveTrain = new DriveTrain();
 
     @Override
     public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap);
-        driveTrain = new DriveTrain(robot, this);
+        driveTrain.init(robot, this);
         waitForStart();
 
         driveTrain.driveToDistance(12.0, 0.5, 10);

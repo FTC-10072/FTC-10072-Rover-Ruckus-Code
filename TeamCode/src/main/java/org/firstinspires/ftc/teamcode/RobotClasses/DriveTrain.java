@@ -15,8 +15,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
-import java.lang.annotation.ElementType;
-
 public class DriveTrain {
 
     private LinearOpMode currentOpMode;
@@ -29,23 +27,31 @@ public class DriveTrain {
     private static final double DRIVE_P = 0.5, TURN_P = 0.5;
     private static final double MAX_DRIVE_SPEED = 0.7;
     private static final double GAIN = 0.1;
+    private static final double DEADBAND = 0.15;
 
     private static final int COUNTS_PER_REV = 1680; // count / rev
     private static final double WHEEL_DIAMETER = 4.0; // inches
     private static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * 3.141592; // distance / rev
     private static final double COUNTS_PER_INCH = COUNTS_PER_REV / WHEEL_CIRCUMFERENCE;
 
-    public DriveTrain(HardwareRobot robot, LinearOpMode opMode){
+    public DriveTrain(){}
+
+    public void init(HardwareRobot robot, LinearOpMode opMode){
         currentOpMode = opMode;
         leftFrontMotor = robot.leftFrontMotor;
         leftBackMotor = robot.leftBackMotor;
         rightFrontMotor = robot.rightFrontMotor;
         rightBackMotor = robot.rightBackMotor;
 
+        opMode.telemetry.addData("Mode", "calibrating...");
+        opMode.telemetry.update();
         imu = robot.imu;
         while(currentOpMode.opModeIsActive() && !imu.isGyroCalibrated()){
             currentOpMode.sleep(50);
         }
+        opMode.telemetry.addData("Mode", "finished calibrating.");
+        opMode.telemetry.addData("imu calib status", imu.getCalibrationStatus().toString());
+        opMode.telemetry.update();
 
         resetAngle();
     }
@@ -58,7 +64,7 @@ public class DriveTrain {
         assert timeout > 0;
         setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // reset position and velocity
-        imu.startAccelerationIntegration(new Position(), new Velocity(), 100);
+        imu.startAccelerationIntegration(new Position(), new Velocity(), 50);
         resetAngle();
         // loop values
         double currentDistance = imu.getPosition().toUnit(DistanceUnit.INCH).x;
@@ -71,8 +77,8 @@ public class DriveTrain {
                 && -precision < diff && diff < precision ){
             // set power
             power = diff * DRIVE_P;
-            setLeftPower(power, checkDirection());
-            setRightPower(power);
+            setLeftPower(power, MAX_DRIVE_SPEED, checkDirection());
+            setRightPower(power, MAX_DRIVE_SPEED);
             // update values
             currentDistance = imu.getPosition().toUnit(DistanceUnit.INCH).x;
             diff = targetDistance - currentDistance;
@@ -82,8 +88,8 @@ public class DriveTrain {
         // check if finished
         if(time.seconds() > timeout) return false;
         // stop motors
-        setLeftPower(0.0);
-        setRightPower(0.0);
+        setLeftPower(0.0, 0.0);
+        setRightPower(0.0, 0.0);
         imu.stopAccelerationIntegration();
         // return that it ended under timeout
         return true;
@@ -112,8 +118,8 @@ public class DriveTrain {
                 && -precision < diff && diff < precision){
             // set power
             power = diff * TURN_P;
-            setLeftPower(power);
-            setRightPower(-power);
+            setLeftPower(power, MAX_DRIVE_SPEED);
+            setRightPower(-power, MAX_DRIVE_SPEED);
             // update values
             currentAngle = getAngle();
             diff = currentAngle - targetAngle;
@@ -123,41 +129,80 @@ public class DriveTrain {
         // check if finished
         if(time.seconds() > timeout) return false;
         // stop motors
-        setLeftPower(0.0);
-        setRightPower(0.0);
+        setLeftPower(0.0, 0.0);
+        setRightPower(0.0, 0.0);
         resetAngle();
         return true;
     }
 
-    // drive at specified speed. for use in TeleOp
-    public void driveAtSpeed(double leftSpeed, double rightSpeed){
-        setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        setLeftPower(leftSpeed);
-        setRightPower(rightSpeed);
+
+    public void arcadeDrive(double move, double turn){
+        move = boundValue(move);
+        move = deadband(move, DEADBAND);
+        turn = boundValue(turn);
+        turn = deadband(turn, DEADBAND);
+
+        // square input while keeping sign
+        move *= Math.abs(move);
+        turn *= Math.abs(turn);
+
+        double leftPower, rightPower;
+        double maxInput = Math.copySign(Math.max(Math.abs(move), Math.abs(turn)), move);
+
+        if(move >= 0){
+            if(turn >= 0){
+                leftPower = maxInput;
+                rightPower = move - turn;
+            }else{
+                leftPower = move + turn;
+                rightPower = maxInput;
+            }
+        }else{
+            if(turn >= 0){
+                leftPower = move + turn;
+                rightPower = maxInput;
+            }else{
+                leftPower = maxInput;
+                rightPower = move - turn;
+            }
+        }
+
+        setLeftPower(leftPower, MAX_DRIVE_SPEED);
+        setRightPower(rightPower, MAX_DRIVE_SPEED);
     }
 
     // normalize power and set left motors to that power (with correction)
-    private void setLeftPower(double power, double correction){
-        if(power > MAX_DRIVE_SPEED) power = MAX_DRIVE_SPEED;
-        if(power < -MAX_DRIVE_SPEED) power = -MAX_DRIVE_SPEED;
+    private void setLeftPower(double power, double maxPower, double correction){
+        power = boundValue(power) * maxPower;
         leftFrontMotor.setPower(power + correction);
         leftBackMotor.setPower(power + correction);
     }
 
     // normalize power and set left motors
-    private void setLeftPower(double power){
-        if(power > MAX_DRIVE_SPEED) power = MAX_DRIVE_SPEED;
-        if(power < -MAX_DRIVE_SPEED) power = -MAX_DRIVE_SPEED;
+    private void setLeftPower(double power, double maxPower){
+        power = boundValue(power) * maxPower;
         leftFrontMotor.setPower(power);
         leftBackMotor.setPower(power);
     }
 
     // normalize power and set right motors to that power
-    private void setRightPower(double power){
-        if(power > MAX_DRIVE_SPEED) power = MAX_DRIVE_SPEED;
-        if(power < -MAX_DRIVE_SPEED) power = -MAX_DRIVE_SPEED;
+    private void setRightPower(double power, double maxPower){
+        power = boundValue(power) * maxPower;
         rightFrontMotor.setPower(power);
         rightBackMotor.setPower(power);
+    }
+
+    // bound value to -1.0, 1.0
+    private double boundValue(double value){
+        if(value > 1.0) return 1.0;
+        else if(value < -1.0) return -1.0;
+        else return value;
+    }
+
+    // return 0 if abs(value) is less than band
+    private double deadband(double value, double band){
+        if(-band < value && value < band) return 0;
+        return value;
     }
 
     // set all motor modes
