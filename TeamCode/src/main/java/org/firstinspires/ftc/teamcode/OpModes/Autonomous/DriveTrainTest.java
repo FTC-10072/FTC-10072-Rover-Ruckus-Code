@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.OpModes;
+package org.firstinspires.ftc.teamcode.OpModes.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.RobotClasses.HardwareRobot;
 
 @Autonomous(name = "Encoder Test", group = "Testing")
 //@Disabled
-public class EncoderTest  extends LinearOpMode {
+public class DriveTrainTest extends LinearOpMode {
 
     HardwareRobot robot = new HardwareRobot();
     DriveTrain driveTrain = new DriveTrain();
@@ -19,9 +19,9 @@ public class EncoderTest  extends LinearOpMode {
         driveTrain.init(robot, this);
         waitForStart();
 
-        driveTrain.driveToDistance(12.0, 0.5, 10);
+        driveTrain.driveToDistance(12.0, 0.5);
         driveTrain.turnToDegree(-90, 1.0, 10);
         driveTrain.turnToDegree(90, 1.0, 10);
-        driveTrain.driveToDistance(-12.0, 0.5, 10);
+        driveTrain.driveToDistance(-12.0, 0.5);
     }
 }

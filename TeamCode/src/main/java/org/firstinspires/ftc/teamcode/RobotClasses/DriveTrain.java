@@ -24,10 +24,12 @@ public class DriveTrain {
     private Orientation lastAngles = new Orientation();
     private double globalAngle;
 
-    private static final double DRIVE_P = 0.5, TURN_P = 0.5;
-    private static final double MAX_DRIVE_SPEED = 0.7;
+    private static final double TURN_P = 0.5;
+    private static final double MAX_DRIVE_SPEED = 0.9;
     private static final double GAIN = 0.1;
     private static final double DEADBAND = 0.15;
+
+    private static final AxesOrder axes = AxesOrder.XYZ;
 
     private static final int COUNTS_PER_REV = 1680; // count / rev
     private static final double WHEEL_DIAMETER = 4.0; // inches
@@ -58,41 +60,44 @@ public class DriveTrain {
 
     // drive to specified distance with specified precision
     @SuppressLint("Assert")
-    public boolean driveToDistance(double targetDistance, double precision, double timeout){
-        // assert values
-        assert precision > 0;
-        assert timeout > 0;
-        setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        // reset position and velocity
-        imu.startAccelerationIntegration(new Position(), new Velocity(), 50);
-        resetAngle();
-        // loop values
-        double currentDistance = imu.getPosition().toUnit(DistanceUnit.INCH).x;
-        double diff = targetDistance - currentDistance;
-        double power;
-        // reset time
-        ElapsedTime time = new ElapsedTime();
-        // loop until diff is within precision or timeout
-        while(currentOpMode.opModeIsActive() && time.seconds() < timeout
-                && -precision < diff && diff < precision ){
-            // set power
-            power = diff * DRIVE_P;
-            setLeftPower(power, MAX_DRIVE_SPEED, checkDirection());
-            setRightPower(power, MAX_DRIVE_SPEED);
-            // update values
-            currentDistance = imu.getPosition().toUnit(DistanceUnit.INCH).x;
-            diff = targetDistance - currentDistance;
-            // sleep
-            currentOpMode.sleep(50);
+    public boolean driveToDistance(double targetDistance, double timeout){
+        if(currentOpMode.opModeIsActive()) {
+            assert timeout > 0;
+            // set new target position
+            int newLeftFrontTarget = leftFrontMotor.getCurrentPosition() + (int) (COUNTS_PER_INCH * targetDistance);
+            int newLeftBackTarget = leftBackMotor.getCurrentPosition() + (int) (COUNTS_PER_INCH * targetDistance);
+            int newRightFrontTarget = rightFrontMotor.getCurrentPosition() + (int) (COUNTS_PER_INCH * targetDistance);
+            int newRightBackTarget = rightBackMotor.getCurrentPosition() + (int) (COUNTS_PER_INCH * targetDistance);
+
+            leftFrontMotor.setTargetPosition(newLeftFrontTarget);
+            leftBackMotor.setTargetPosition(newLeftBackTarget);
+            rightFrontMotor.setTargetPosition(newRightFrontTarget);
+            rightBackMotor.setTargetPosition(newRightBackTarget);
+
+            leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            // reset time
+            ElapsedTime time = new ElapsedTime();
+            // loop until diff is within precision or timeout
+            while (currentOpMode.opModeIsActive() && time.seconds() < timeout
+                    && leftFrontMotor.isBusy() && leftBackMotor.isBusy()
+                    && rightFrontMotor.isBusy() && rightBackMotor.isBusy()) {
+                // set power with correction
+                setLeftPower(1.0, MAX_DRIVE_SPEED, checkDirection());
+                setRightPower(1.0, MAX_DRIVE_SPEED);
+            }
+            // check if finished
+            if (time.seconds() > timeout) return false;
+            // stop motors
+            setLeftPower(0.0, 0.0);
+            setRightPower(0.0, 0.0);
+            // return that it ended under timeout
+            return true;
         }
-        // check if finished
-        if(time.seconds() > timeout) return false;
-        // stop motors
-        setLeftPower(0.0, 0.0);
-        setRightPower(0.0, 0.0);
-        imu.stopAccelerationIntegration();
-        // return that it ended under timeout
-        return true;
+        return false;
     }
 
     // turn to specific degree. for use in Auto
@@ -142,33 +147,21 @@ public class DriveTrain {
         turn = boundValue(turn);
         turn = deadband(turn, DEADBAND);
 
-        // square input while keeping sign
-        move *= Math.abs(move);
-        turn *= Math.abs(turn);
+        // Combine drive and turn for blended motion.
+        double left  = move + turn;
+        double right = move - turn;
 
-        double leftPower, rightPower;
-        double maxInput = Math.copySign(Math.max(Math.abs(move), Math.abs(turn)), move);
-
-        if(move >= 0){
-            if(turn >= 0){
-                leftPower = maxInput;
-                rightPower = move - turn;
-            }else{
-                leftPower = move + turn;
-                rightPower = maxInput;
-            }
-        }else{
-            if(turn >= 0){
-                leftPower = move + turn;
-                rightPower = maxInput;
-            }else{
-                leftPower = maxInput;
-                rightPower = move - turn;
-            }
+        // Normalize the values so neither exceed +/- 1.0
+        double max = Math.max(Math.abs(left), Math.abs(right));
+        if (max > 1.0)
+        {
+            left /= max;
+            right /= max;
         }
 
-        setLeftPower(leftPower, MAX_DRIVE_SPEED);
-        setRightPower(rightPower, MAX_DRIVE_SPEED);
+        // Output the safe vales to the motor drives.
+        setLeftPower(left, MAX_DRIVE_SPEED);
+        setRightPower(right, MAX_DRIVE_SPEED);
     }
 
     // normalize power and set left motors to that power (with correction)
@@ -215,14 +208,14 @@ public class DriveTrain {
 
     // reset the gyro angle
     private void resetAngle(){
-        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, axes, AngleUnit.DEGREES);
         globalAngle = 0;
     }
 
     // get the current gyro angle
     // positive is to the left, negative is to the right
     private double getAngle(){
-        Orientation newAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        Orientation newAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, axes, AngleUnit.DEGREES);
         double deltaAngle = newAngles.firstAngle - lastAngles.firstAngle;
         if(deltaAngle < -180){
             deltaAngle += 360;
