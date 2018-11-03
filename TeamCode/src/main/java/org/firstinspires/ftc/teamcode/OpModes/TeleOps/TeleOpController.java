@@ -24,6 +24,8 @@ public class TeleOpController extends LinearOpMode {
         double rightStickX;
         double elevatorPower;
 
+        elevator.setRatchetLock(false);
+
         waitForStart();
 
         while(opModeIsActive()){
@@ -31,6 +33,18 @@ public class TeleOpController extends LinearOpMode {
             rightStickX = gamepad1.right_stick_x;
 
             driveTrain.arcadeDrive(leftStickY, rightStickX);
+
+            if(gamepad1.left_bumper){
+                elevatorPower = 0.7;
+            }
+            else if(gamepad1.right_bumper){
+                elevatorPower = -0.7;
+            }
+            else{
+                elevatorPower = 0.0;
+            }
+
+            elevator.moveElevator(elevatorPower);
         }
     }
 }

@@ -45,15 +45,10 @@ public class DriveTrain {
         rightFrontMotor = robot.rightFrontMotor;
         rightBackMotor = robot.rightBackMotor;
 
-        opMode.telemetry.addData("Mode", "calibrating...");
-        opMode.telemetry.update();
+        setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         imu = robot.imu;
-        while(currentOpMode.opModeIsActive() && !imu.isGyroCalibrated()){
-            currentOpMode.sleep(50);
-        }
-        opMode.telemetry.addData("Mode", "finished calibrating.");
-        opMode.telemetry.addData("imu calib status", imu.getCalibrationStatus().toString());
-        opMode.telemetry.update();
 
         resetAngle();
     }
@@ -162,6 +157,13 @@ public class DriveTrain {
         // Output the safe vales to the motor drives.
         setLeftPower(left, MAX_DRIVE_SPEED);
         setRightPower(right, MAX_DRIVE_SPEED);
+    }
+
+    public void stop(){
+        leftFrontMotor.setPower(0.0);
+        leftBackMotor.setPower(0.0);
+        rightFrontMotor.setPower(0.0);
+        rightBackMotor.setPower(0.0);
     }
 
     // normalize power and set left motors to that power (with correction)

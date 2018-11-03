@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.RobotClasses.DriveTrain;
 import org.firstinspires.ftc.teamcode.RobotClasses.HardwareRobot;
 
-@Autonomous(name = "Encoder Test", group = "Testing")
+@Autonomous(name = "DriveTrain Test", group = "Testing")
 //@Disabled
 public class DriveTrainTest extends LinearOpMode {
 
@@ -19,9 +19,10 @@ public class DriveTrainTest extends LinearOpMode {
         driveTrain.init(robot, this);
         waitForStart();
 
-        driveTrain.driveToDistance(12.0, 0.5);
-        driveTrain.turnToDegree(-90, 1.0, 10);
-        driveTrain.turnToDegree(90, 1.0, 10);
-        driveTrain.driveToDistance(-12.0, 0.5);
+        driveTrain.driveToDistance(36.0, 6.0);
+        //driveTrain.turnToDegree(-90, 1.0, 10);
+        //driveTrain.turnToDegree(90, 1.0, 10);
+        driveTrain.driveToDistance(-36.0, 6.0);
+        driveTrain.stop();
     }
 }
