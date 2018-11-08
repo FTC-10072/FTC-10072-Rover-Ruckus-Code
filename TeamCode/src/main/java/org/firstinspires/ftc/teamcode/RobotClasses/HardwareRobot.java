@@ -73,12 +73,11 @@ public class HardwareRobot {
 
         // set up IMU
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit            = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit            = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled       = true;
-        parameters.useExternalCrystal   = true;
-        parameters.mode                 = BNO055IMU.SensorMode.IMU;
-        parameters.loggingTag           = "IMU";
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
         imu                             = hwMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
     }

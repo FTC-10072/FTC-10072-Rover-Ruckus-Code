@@ -13,38 +13,31 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+import org.firstinspires.ftc.teamcode.RobotClasses.DriveTrain;
+import org.firstinspires.ftc.teamcode.RobotClasses.HardwareRobot;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.ZYX;
 
 @Autonomous(name = "Gyro Test", group = "Testing")
 //@Disabled
 public class GyroTest extends LinearOpMode {
-    BNO055IMU imu;
-    Orientation angles;
-    Position position;
+    HardwareRobot robot = new HardwareRobot();
+    DriveTrain driveTrain = new DriveTrain();
 
     @Override
     public void runOpMode() throws InterruptedException {
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = true;
 
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
-
-        while(!imu.isGyroCalibrated() && !imu.isAccelerometerCalibrated()){
-            telemetry.addData("Calibration status", imu.getCalibrationStatus());
-            telemetry.update();
-        }
+        robot.init(hardwareMap);
+        driveTrain.init(robot, this);
 
         waitForStart();
 
         while(opModeIsActive()){
-            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
-            position = imu.getPosition();
 
-            telemetry.addData("Angles", "%f, %f, %f", angles.firstAngle, angles.secondAngle, angles.thirdAngle);
+            if(gamepad1.a){
+                driveTrain.resetAngle();
+            }
+            telemetry.addData("Angle", driveTrain.getAngle());
             telemetry.update();
         }
     }

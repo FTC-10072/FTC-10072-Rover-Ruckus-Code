@@ -29,7 +29,7 @@ public class DriveTrain {
     private static final double GAIN = 0.1;
     private static final double DEADBAND = 0.15;
 
-    private static final AxesOrder axes = AxesOrder.XYZ;
+    private static final AxesOrder axes = AxesOrder.ZYX;
 
     private static final int COUNTS_PER_REV = 1680; // count / rev
     private static final double WHEEL_DIAMETER = 4.0; // inches
@@ -209,14 +209,14 @@ public class DriveTrain {
     }
 
     // reset the gyro angle
-    private void resetAngle(){
+    public void resetAngle(){
         lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, axes, AngleUnit.DEGREES);
         globalAngle = 0;
     }
 
     // get the current gyro angle
     // positive is to the left, negative is to the right
-    private double getAngle(){
+    public double getAngle(){
         Orientation newAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, axes, AngleUnit.DEGREES);
         double deltaAngle = newAngles.firstAngle - lastAngles.firstAngle;
         if(deltaAngle < -180){
