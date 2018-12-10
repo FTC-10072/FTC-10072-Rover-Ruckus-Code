@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.RobotClasses;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -11,9 +10,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class HardwareRobot {
 
     public DcMotor leftFrontMotor, leftBackMotor, rightFrontMotor, rightBackMotor;
-    public DcMotor elevatorMotor;
-    public Servo intakeMotion;
+    public DcMotor elevatorMotor, armMotor;
     public Servo ratchetServo, clawServo;
+    public Servo armServo;
+    public Servo sweeperServo, markerServo;
     public BNO055IMU imu;
 
     HardwareMap hwMap = null;
@@ -25,11 +25,12 @@ public class HardwareRobot {
         hwMap = ahwMap;
 
         // setup motors
-        leftFrontMotor  = hwMap.get(DcMotor.class,"left_motor_1");
-        leftBackMotor   = hwMap.get(DcMotor.class,"left_motor_2");
-        rightFrontMotor = hwMap.get(DcMotor.class,"right_motor_1");
-        rightBackMotor  = hwMap.get(DcMotor.class,"right_motor_2");
-        elevatorMotor   = hwMap.get(DcMotor.class,"elevator_motor");
+        leftFrontMotor     = hwMap.get(DcMotor.class,"left_motor_1");
+        leftBackMotor      = hwMap.get(DcMotor.class,"left_motor_2");
+        rightFrontMotor    = hwMap.get(DcMotor.class,"right_motor_1");
+        rightBackMotor     = hwMap.get(DcMotor.class,"right_motor_2");
+        elevatorMotor      = hwMap.get(DcMotor.class,"elevator_motor");
+        armMotor           = hwMap.get(DcMotor.class,"arm_motor");
 
         leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -63,13 +64,19 @@ public class HardwareRobot {
         elevatorMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // set up servos
-        intakeMotion = hwMap.get(Servo.class,"intake_motion");
         ratchetServo = hwMap.get(Servo.class,"ratchet_servo");
         clawServo    = hwMap.get(Servo.class,"claw_servo");
+        armServo     = hwMap.get(Servo.class,"arm_servo");
 
-        intakeMotion.setPosition(0.0);
+        // temporary?
+        sweeperServo = hwMap.get(Servo.class,"sweeper_servo");
+        markerServo  = hwMap.get(Servo.class,"marker_servo");
+
         ratchetServo.setPosition(1.0);
         clawServo.setPosition(0.0);
+
+        sweeperServo.setPosition(1.0);
+        markerServo.setPosition(0.0);
 
         // set up IMU
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();

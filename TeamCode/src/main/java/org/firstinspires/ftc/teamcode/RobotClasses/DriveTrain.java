@@ -24,8 +24,14 @@ public class DriveTrain {
     private Orientation lastAngles = new Orientation();
     private double globalAngle;
 
-    private static final double TURN_P = 0.5;
+    // Ku = 0.105
+    // Tu = .866
+
+    private double TURN_P = 0.072;
+    private double TURN_I = 0.0;
+    private double TURN_D = 0.00450;
     private static final double MAX_DRIVE_SPEED = 0.9;
+    private static final double MAX_TURN_SPEED = 0.7;
     private static final double GAIN = 0.1;
     private static final double DEADBAND = 0.15;
 
@@ -112,25 +118,44 @@ public class DriveTrain {
         double currentAngle = getAngle();
         double diff = currentAngle - targetAngle;
         double power;
+        double totalDiffs = 0.0;
+        double previousDiff = diff;
+        double derivative;
+        double period = 0.05;
         // reset time
         ElapsedTime time = new ElapsedTime();
+
         while(currentOpMode.opModeIsActive() && time.seconds() < timeout
-                && -precision < diff && diff < precision){
+                && Math.abs(diff) > precision){
+            // integrate
+            totalDiffs += diff * period;
+            // derivative
+            derivative = (diff - previousDiff)/period;
             // set power
-            power = diff * TURN_P;
-            setLeftPower(power, MAX_DRIVE_SPEED);
-            setRightPower(-power, MAX_DRIVE_SPEED);
+            power = diff * TURN_P + totalDiffs * TURN_I + derivative * TURN_D;
+            setLeftPower(power, MAX_TURN_SPEED);
+            setRightPower(-power, MAX_TURN_SPEED);
             // update values
             currentAngle = getAngle();
+            previousDiff = diff;
             diff = currentAngle - targetAngle;
+            currentOpMode.telemetry.addData("target", targetAngle);
+            currentOpMode.telemetry.addData("current", currentAngle);
+            currentOpMode.telemetry.addData("power", power);
+            currentOpMode.telemetry.addData("diff", diff);
+            currentOpMode.telemetry.addData("total", totalDiffs);
+            currentOpMode.telemetry.addData("deriv", derivative);
+            currentOpMode.telemetry.update();
             // sleep
-            currentOpMode.sleep(50);
+            currentOpMode.sleep((int)(1000*period));
         }
         // check if finished
-        if(time.seconds() > timeout) return false;
+        if(time.seconds() > timeout){
+            stop();
+            return false;
+        }
         // stop motors
-        setLeftPower(0.0, 0.0);
-        setRightPower(0.0, 0.0);
+        stop();
         resetAngle();
         return true;
     }
@@ -236,5 +261,13 @@ public class DriveTrain {
     private double checkDirection(){
         double angle = getAngle();
         return angle * GAIN;
+    }
+
+    public void changePID(double p, double i, double d){
+        TURN_P = Math.abs(p);
+        TURN_I = Math.abs(i);
+        TURN_D = Math.abs(d);
+        currentOpMode.telemetry.addData("PID", "%f, %f, %f", TURN_P, TURN_I, TURN_D);
+        currentOpMode.telemetry.update();
     }
 }

@@ -21,9 +21,6 @@ public class JustMoveForwardPlease extends LinearOpMode {
 
         waitForStart();
 
-        driveTrain.arcadeDrive(1.0, 0.0);
-        runtime.reset();
-        while(opModeIsActive() && runtime.seconds() < 2.0){}
-        driveTrain.arcadeDrive(0.0, 0.0);
+        driveTrain.driveToDistance(24*Math.sqrt(2.0),7);
     }
 }

@@ -12,6 +12,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +45,6 @@ public class MineralVision extends OpenCVPipeline{
     @Override
     public Mat processFrame(Mat rgba, Mat gray) {
         // convert to HSV
-
         Imgproc.cvtColor(rgba, hsv, Imgproc.COLOR_RGB2HSV);
 
         Mat goldMask = new Mat();
@@ -104,29 +104,29 @@ public class MineralVision extends OpenCVPipeline{
 
         // we look at y values because the phone is on its side
         if(goldRect != null){
-            goldPos = goldRect.y + goldRect.height / 2;
+            goldPos = goldRect.x + goldRect.width / 2;
         }
         if(silverRect1 != null){
-            silverPos1 = silverRect1.y + silverRect1.height / 2;
+            silverPos1 = silverRect1.x + silverRect1.width / 2;
         }
         if(silverRect2 != null){
-            silverPos2 = silverRect2.y + silverRect2.height / 2;
+            silverPos2 = silverRect2.x + silverRect2.width / 2;
         }
 
         // find which third of image each mineral is in
-        int totalHeight = rgba.height();
-        int thirdHeight = totalHeight / 3;
+        int totalWidth = rgba.width();
+        int thirdWidth = totalWidth / 3;
 
-        Imgproc.line(mineralImage, new Point(0, thirdHeight), new Point(rgba.width(), thirdHeight), ImageUtil.RED, 2);
-        Imgproc.line(mineralImage, new Point(0, 2*thirdHeight), new Point(rgba.width(),2*thirdHeight), ImageUtil.RED, 2);
+        Imgproc.line(mineralImage, new Point(thirdWidth, 0), new Point(thirdWidth, rgba.height()), ImageUtil.RED, 2);
+        Imgproc.line(mineralImage, new Point(2*thirdWidth, 0), new Point(2*thirdWidth, rgba.height()), ImageUtil.RED, 2);
         Imgproc.rectangle(mineralImage, new Point(0, 0), new Point(rgba.width(), rgba.height()), ImageUtil.RED, 2);
 
         int goldThird = 3;
         int silverThird1 = 3;
         int silverThird2 = 3;
-        if(goldPos != -1) goldThird = goldPos / thirdHeight;
-        if(silverPos1 != -1) silverThird1 = silverPos1 / thirdHeight;
-        if(silverPos2 != -1) silverThird2 = silverPos2 / thirdHeight;
+        if(goldPos != -1) goldThird = goldPos / thirdWidth;
+        if(silverPos1 != -1) silverThird1 = silverPos1 / thirdWidth;
+        if(silverPos2 != -1) silverThird2 = silverPos2 / thirdWidth;
 
         // set colors for result
         MineralResult.MineralColor colors[] = {MineralResult.MineralColor.UNKNOWN,

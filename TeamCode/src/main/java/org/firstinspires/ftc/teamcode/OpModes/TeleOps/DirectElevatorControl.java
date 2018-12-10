@@ -1,39 +1,41 @@
 package org.firstinspires.ftc.teamcode.OpModes.TeleOps;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.RobotClasses.HardwareRobot;
-import org.firstinspires.ftc.teamcode.RobotClasses.IntakeOuttake;
+import org.firstinspires.ftc.teamcode.RobotClasses.Elevator;
 
 @TeleOp(name= "DirectElevatorControl", group = "Testing")
+@Disabled
 public class DirectElevatorControl extends LinearOpMode {
 
     private HardwareRobot robot = new HardwareRobot();
-    private IntakeOuttake intakeOuttake = new IntakeOuttake();
+    private Elevator elevator = new Elevator();
 
     @Override
     public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap);
-        intakeOuttake.init(robot, this);
+        elevator.init(robot, this);
 
         waitForStart();
 
         while(opModeIsActive()) {
             if (gamepad1.dpad_up) {
-                intakeOuttake.moveElevator(0.5);
+                elevator.moveElevator(0.5);
             } else if (gamepad1.dpad_down) {
-                intakeOuttake.moveElevator(-0.5);
+                elevator.moveElevator(-0.5);
             } else {
-                intakeOuttake.moveElevator(0);
+                elevator.moveElevator(0);
             }
 
-            if (!gamepad1.left_bumper && gamepad1.a) intakeOuttake.setRatchetLock(true);
-            if (!gamepad1.left_bumper && gamepad1.b) intakeOuttake.setRatchetLock(false);
-            if (gamepad1.x) intakeOuttake.closeClaw();
-            if (gamepad1.y) intakeOuttake.openClaw();
-            if(gamepad1.left_bumper && gamepad1.a) intakeOuttake.moveElevatorUp();
-            if(gamepad1.left_bumper && gamepad1.b) intakeOuttake.moveElevatorDown();
+            if (!gamepad1.left_bumper && gamepad1.a) elevator.setRatchetLock(true);
+            if (!gamepad1.left_bumper && gamepad1.b) elevator.setRatchetLock(false);
+            if (gamepad1.x) elevator.closeClaw();
+            if (gamepad1.y) elevator.openClaw();
+            if(gamepad1.left_bumper && gamepad1.a) elevator.moveElevatorToHookHeight();
+            if(gamepad1.left_bumper && gamepad1.b) elevator.moveElevatorDown();
         }
     }
 }

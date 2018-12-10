@@ -4,16 +4,16 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class IntakeOuttake {
+public class Elevator {
     private LinearOpMode currentOpMode;
     private DcMotor elevatorMotor;
     private Servo ratchetServo, clawServo;
     private boolean ratchetLocked = true;
 
-    private static final double rotationsToTop = 2.375;
-    private static final int TOP_TARGET = (int)(rotationsToTop * 1620);
+    private static final double rotationsToHook = 2.475;
+    private static final int HOOK_TARGET = (int)(rotationsToHook * 1120);
 
-    public IntakeOuttake(){}
+    public Elevator(){}
 
     public void init(HardwareRobot robot, LinearOpMode opMode){
         elevatorMotor = robot.elevatorMotor;
@@ -25,6 +25,7 @@ public class IntakeOuttake {
         elevatorMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
+    // ELEVATOR FUNCTIONS
     public void setRatchetLock(boolean lock){
         ratchetLocked = lock;
         if(lock){
@@ -42,20 +43,18 @@ public class IntakeOuttake {
         clawServo.setPosition(0.0);
     }
 
-    public void moveElevatorUp(){
-        if(!ratchetLocked) {
-            elevatorMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            elevatorMotor.setTargetPosition(TOP_TARGET);
-            elevatorMotor.setPower(0.5);
-            elevatorMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-    }
-
     public void moveElevatorDown(){
         elevatorMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         elevatorMotor.setTargetPosition(0);
         elevatorMotor.setPower(0.5);
-        elevatorMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void moveElevatorToHookHeight(){
+        if(!ratchetLocked){
+            elevatorMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            elevatorMotor.setTargetPosition(HOOK_TARGET);
+            elevatorMotor.setPower(0.5);
+        }
     }
 
     public void moveElevator(double speed){

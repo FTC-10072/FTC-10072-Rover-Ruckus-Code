@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.RobotClasses.HardwareRobot;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.ZYX;
 
 @Autonomous(name = "Gyro Test", group = "Testing")
-//@Disabled
+@Disabled
 public class GyroTest extends LinearOpMode {
     HardwareRobot robot = new HardwareRobot();
     DriveTrain driveTrain = new DriveTrain();
@@ -40,5 +40,7 @@ public class GyroTest extends LinearOpMode {
             telemetry.addData("Angle", driveTrain.getAngle());
             telemetry.update();
         }
+
+
     }
 }
