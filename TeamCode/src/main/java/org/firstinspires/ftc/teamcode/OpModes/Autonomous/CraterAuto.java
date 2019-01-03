@@ -35,25 +35,30 @@ public class CraterAuto extends LinearOpMode {
         */
 
         // move to mineral
-        double turnAngle = 23.565;
+        double turnAngle = 27.565;
         double shortDistance = Math.sqrt(8.0) * 12 - 2;
         double longDistance = Math.sqrt(10.0) * 12 - 3;
+        driveTrain.driveToDistance(4, .75);
+        driveTrain.turnToDegree(90, .1, 2.5);
+        driveTrain.driveToDistance(-3.5,.75);
         PhoneVision.Direction direction = vision.getDirection();
+        driveTrain.driveToDistance(3.5,.75);
+        driveTrain.turnToDegree(-90, .1, 2.5);
         if(direction == PhoneVision.Direction.LEFT){
             driveTrain.turnToDegree(turnAngle, 0.1, 2.0);
             driveTrain.driveToDistance(longDistance, 3.5);
-            driveTrain.turnToDegree(-2*turnAngle, 0.1, 2.0);
-            driveTrain.driveToDistance(longDistance/4, 3.5);
+            //driveTrain.turnToDegree(-2*turnAngle, 0.1, 2.0);
+            //driveTrain.driveToDistance(longDistance/4, 3.5);
         }
         else if(direction == PhoneVision.Direction.RIGHT){
             driveTrain.turnToDegree(-turnAngle, 0.1, 2.0);
             driveTrain.driveToDistance(longDistance, 3.5);
-            driveTrain.turnToDegree(2*turnAngle, 0.1, 2.0);
-            driveTrain.driveToDistance(longDistance/4, 3.5);
+            //driveTrain.turnToDegree(2*turnAngle, 0.1, 2.0);
+            //driveTrain.driveToDistance(longDistance/4, 3.5);
         }
         else{
             driveTrain.driveToDistance(shortDistance, 3.0);
-            driveTrain.driveToDistance(shortDistance/4, 3.0);
+            //driveTrain.driveToDistance(shortDistance/4, 3.0);
         }
         driveTrain.stop();
     }

@@ -14,9 +14,9 @@ public class DriveTrainTest extends LinearOpMode {
     HardwareRobot robot = new HardwareRobot();
     DriveTrain driveTrain = new DriveTrain();
 
-    double currentP = 0.072;
+    double currentP = 0.048;
     double currentI = 0.0;
-    double currentD = 0.00420;
+    double currentD = 0.00150;
     double change =   0.0001;
 
     @Override

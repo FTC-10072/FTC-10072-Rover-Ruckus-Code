@@ -35,26 +35,58 @@ public class DepotAuto extends LinearOpMode {
         */
 
         // move to mineral
-        double turnAngle = 23.565;
+        double turnAngle = 27.565;
         double shortDistance = Math.sqrt(8.0) * 12 - 2;
-        double longDistance = Math.sqrt(10.0) * 12 - 3;
+        double longDistance = Math.sqrt(10.0) * 12 -3;
+        double depotToCrater = 72;
+        //scans for location of mineral
+        driveTrain.driveToDistance(4, .75);
+        driveTrain.turnToDegree(90, .1, 3.5);
+        driveTrain.driveToDistance(-3.5,.75);
         PhoneVision.Direction direction = vision.getDirection();
+        driveTrain.driveToDistance(3.5,.75);
+        driveTrain.turnToDegree(-90, .1, 3.5);
+        //moves to the location that is provided by the vision
         if(direction == PhoneVision.Direction.LEFT){
             driveTrain.turnToDegree(turnAngle, 0.1, 3.0);
-            driveTrain.driveToDistance(longDistance, 3.5);
-            driveTrain.turnToDegree(-2*turnAngle, 0.1, 3.0);
-            driveTrain.driveToDistance(longDistance*2/5, 3.5);
+            driveTrain.driveToDistance(longDistance+6, 3.5);
+            //driveTrain.turnToDegree(-2*turnAngle, 0.1, 3.0);
+            //driveTrain.driveToDistance(longDistance*2/5, 3.5);
+            driveTrain.turnToDegree(-(turnAngle+40), 0.1,2.0);
+            driveTrain.driveToDistance(15, 1.0);
+            elevator.lowerMarkerServo();
+            sleep(500);
+            //driveTrain.turnToDegree(-45, .5, 2.5);
+            elevator.raiseMarkerServo();
+            driveTrain.driveToDistance(-depotToCrater, 5.0);
         }
         else if(direction == PhoneVision.Direction.RIGHT){
             driveTrain.turnToDegree(-turnAngle, 0.1, 3.0);
-            driveTrain.driveToDistance(longDistance, 3.5);
-            driveTrain.turnToDegree(2*turnAngle, 0.1, 3.0);
-            driveTrain.driveToDistance(longDistance*2/5, 3.5);
+            driveTrain.driveToDistance(longDistance+2.5, 3.5);
+            //driveTrain.turnToDegree(2*turnAngle, 0.1, 3.0);
+            //driveTrain.driveToDistance(longDistance*2/5, 3.5);
+            driveTrain.turnToDegree(turnAngle+50, 0.1,2.0);
+            driveTrain.driveToDistance(15, 1.0);
+            elevator.lowerMarkerServo();
+            sleep(500);
+            //driveTrain.turnToDegree(45, .5, 2.5);
+            elevator.raiseMarkerServo();
+            driveTrain.driveToDistance(-depotToCrater, 5.0);
+
         }
         else{
-            driveTrain.driveToDistance(shortDistance, 3.0);
-            driveTrain.driveToDistance(shortDistance*2/5, 3.0);
+            driveTrain.driveToDistance(shortDistance+15, 3.0);
+
+            elevator.lowerMarkerServo();
+            sleep(500);
+            driveTrain.turnToDegree(-90, .1, 2.5);
+            elevator.raiseMarkerServo();
+            driveTrain.driveToDistance(-17,2.0);
+            driveTrain.turnToDegree(40, 0.1, 1.5);
+            driveTrain.driveToDistance(-depotToCrater,5.0);
         }
+
+
         driveTrain.stop();
         driveTrain.driveToDistance(-6,3);
         driveTrain.stop();

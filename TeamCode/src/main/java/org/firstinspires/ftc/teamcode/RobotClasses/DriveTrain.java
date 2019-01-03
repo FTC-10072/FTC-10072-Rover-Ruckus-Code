@@ -27,9 +27,9 @@ public class DriveTrain {
     // Ku = 0.105
     // Tu = .866
 
-    private double TURN_P = 0.072;
+    private double TURN_P = 0.048;
     private double TURN_I = 0.0;
-    private double TURN_D = 0.00450;
+    private double TURN_D = 0.00150;
     private static final double MAX_DRIVE_SPEED = 0.9;
     private static final double MAX_TURN_SPEED = 0.7;
     private static final double GAIN = 0.1;

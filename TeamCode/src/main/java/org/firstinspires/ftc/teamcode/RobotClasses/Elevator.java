@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class Elevator {
     private LinearOpMode currentOpMode;
     private DcMotor elevatorMotor;
-    private Servo ratchetServo, clawServo;
+    private Servo ratchetServo, clawServo, markerServo;
     private boolean ratchetLocked = true;
 
     private static final double rotationsToHook = 2.475;
@@ -23,6 +23,7 @@ public class Elevator {
 
         elevatorMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         elevatorMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        markerServo = robot.markerServo;
     }
 
     // ELEVATOR FUNCTIONS
@@ -57,6 +58,20 @@ public class Elevator {
         }
     }
 
+    public void detachFromLander(){
+        //move up a bit so the ratchet can disengage
+        moveElevator(-1.0);
+        setRatchetLock(false);
+        currentOpMode.sleep(2000);
+        moveElevator(0.0);
+        moveElevatorToHookHeight();
+        currentOpMode.sleep(4000);
+        openClaw();
+        currentOpMode.sleep(1000);
+        moveElevatorDown();
+        //sleep(4000);
+    }
+
     public void moveElevator(double speed){
         if(speed > 0 && !ratchetLocked){
             elevatorMotor.setPower(speed);
@@ -64,5 +79,12 @@ public class Elevator {
         else{
             elevatorMotor.setPower(speed);
         }
+    }
+    public void lowerMarkerServo(){
+        markerServo.setPosition(1.0);
+
+    }
+    public void raiseMarkerServo(){
+        markerServo.setPosition(0.0);
     }
 }
