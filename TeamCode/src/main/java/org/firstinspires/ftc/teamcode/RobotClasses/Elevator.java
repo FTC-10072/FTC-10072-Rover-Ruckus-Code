@@ -10,8 +10,8 @@ public class Elevator {
     private Servo ratchetServo, clawServo, markerServo;
     private boolean ratchetLocked = true;
 
-    private static final double rotationsToHook = 2.475;
-    private static final int HOOK_TARGET = (int)(rotationsToHook * 1120);
+    private static final double rotationsToHook = 2.75;
+    private static final int HOOK_TARGET = (int)(rotationsToHook * 1120) + 700;
 
     public Elevator(){}
 
@@ -30,9 +30,9 @@ public class Elevator {
     public void setRatchetLock(boolean lock){
         ratchetLocked = lock;
         if(lock){
-            ratchetServo.setPosition(1.0);
+            ratchetServo.setPosition(.5);
         }else{
-            ratchetServo.setPosition(0.5);
+            ratchetServo.setPosition(1.0);
         }
     }
 
@@ -60,16 +60,20 @@ public class Elevator {
 
     public void detachFromLander(){
         //move up a bit so the ratchet can disengage
-        moveElevator(-1.0);
+        elevatorMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        elevatorMotor.setPower(-.5);
         setRatchetLock(false);
-        currentOpMode.sleep(2000);
+        currentOpMode.sleep(1000);
         moveElevator(0.0);
         moveElevatorToHookHeight();
-        currentOpMode.sleep(4000);
-        openClaw();
-        currentOpMode.sleep(1000);
-        moveElevatorDown();
+
+        //openClaw();
+
+        currentOpMode.sleep(3000);
+
         //sleep(4000);
+
+
     }
 
     public void moveElevator(double speed){
@@ -81,10 +85,16 @@ public class Elevator {
         }
     }
     public void lowerMarkerServo(){
-        markerServo.setPosition(1.0);
+        markerServo.setPosition(.2);
 
     }
     public void raiseMarkerServo(){
         markerServo.setPosition(0.0);
+    }
+    public double getElevatorPosition(){
+        return elevatorMotor.getCurrentPosition();
+    }
+    public double getHookTarget(){
+        return HOOK_TARGET;
     }
 }

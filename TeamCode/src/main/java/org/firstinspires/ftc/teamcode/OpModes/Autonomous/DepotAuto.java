@@ -46,13 +46,16 @@ public class DepotAuto extends LinearOpMode {
         PhoneVision.Direction direction = vision.getDirection();
         driveTrain.driveToDistance(3.5,.75);
         driveTrain.turnToDegree(-90, .1, 3.5);
+        driveTrain.stop();
         //moves to the location that is provided by the vision
         if(direction == PhoneVision.Direction.LEFT){
             driveTrain.turnToDegree(turnAngle, 0.1, 3.0);
+            driveTrain.stop();
             driveTrain.driveToDistance(longDistance+6, 3.5);
             //driveTrain.turnToDegree(-2*turnAngle, 0.1, 3.0);
             //driveTrain.driveToDistance(longDistance*2/5, 3.5);
             driveTrain.turnToDegree(-(turnAngle+40), 0.1,2.0);
+            driveTrain.stop();
             driveTrain.driveToDistance(15, 1.0);
             elevator.lowerMarkerServo();
             sleep(500);
@@ -62,10 +65,12 @@ public class DepotAuto extends LinearOpMode {
         }
         else if(direction == PhoneVision.Direction.RIGHT){
             driveTrain.turnToDegree(-turnAngle, 0.1, 3.0);
+            driveTrain.stop();
             driveTrain.driveToDistance(longDistance+2.5, 3.5);
             //driveTrain.turnToDegree(2*turnAngle, 0.1, 3.0);
             //driveTrain.driveToDistance(longDistance*2/5, 3.5);
             driveTrain.turnToDegree(turnAngle+50, 0.1,2.0);
+            driveTrain.stop();
             driveTrain.driveToDistance(15, 1.0);
             elevator.lowerMarkerServo();
             sleep(500);
@@ -80,9 +85,11 @@ public class DepotAuto extends LinearOpMode {
             elevator.lowerMarkerServo();
             sleep(500);
             driveTrain.turnToDegree(-90, .1, 2.5);
+            driveTrain.stop();
             elevator.raiseMarkerServo();
             driveTrain.driveToDistance(-17,2.0);
             driveTrain.turnToDegree(40, 0.1, 1.5);
+            driveTrain.stop();
             driveTrain.driveToDistance(-depotToCrater,5.0);
         }
 

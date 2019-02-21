@@ -42,15 +42,19 @@ public class CraterFull extends LinearOpMode {
         double depotToCraterDistance = 72;
         driveTrain.driveToDistance(4, .75);
         driveTrain.turnToDegree(90, .1, 2.5);
+        driveTrain.stop();
         driveTrain.driveToDistance(-3.5,.75);
         PhoneVision.Direction direction = vision.getDirection();
         driveTrain.driveToDistance(3.5,.75);
         driveTrain.turnToDegree(-90, .1, 2.5);
+        driveTrain.stop();
         if(direction == PhoneVision.Direction.LEFT){
 
             driveTrain.turnToDegree(turnAngle, 0.1, 2.0);
             driveTrain.driveToDistance(longDistance, 3.5);
+            driveTrain.stop();
             driveTrain.turnToDegree(135,.1,2.5);
+            driveTrain.stop();
             driveTrain.driveToDistance(depotToCraterDistance,5.0);
             elevator.lowerMarkerServo();
             driveTrain.driveToDistance(-depotToCraterDistance, 5.0);
@@ -63,11 +67,14 @@ public class CraterFull extends LinearOpMode {
         }
         else if(direction == PhoneVision.Direction.RIGHT){
             driveTrain.turnToDegree(-turnAngle, 0.1, 2.0);
+            driveTrain.stop();
             driveTrain.driveToDistance(longDistance, 3.5);
             driveTrain.driveToDistance(-5,2.0);
             driveTrain.turnToDegree(95,.1,1.5);
+            driveTrain.stop();
             driveTrain.driveToDistance(3.5*halftileDistance,2.5);
             driveTrain.turnToDegree(45,.1 , 1.5);
+            driveTrain.stop();
             driveTrain.driveToDistance(depotToCraterDistance-18, 4.0);
             elevator.lowerMarkerServo();
             driveTrain.driveToDistance(-depotToCraterDistance, 5.0);

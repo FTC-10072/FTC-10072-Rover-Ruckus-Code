@@ -21,6 +21,8 @@ public class JustMoveForwardPlease extends LinearOpMode {
 
         waitForStart();
 
-        driveTrain.driveToDistance(24*Math.sqrt(2.0),7);
+        //driveTrain.driveToDistance(24*Math.sqrt(2.0),7);
+        driveTrain.turnToDegree(90,.1,3);
+        driveTrain.stop();
     }
 }

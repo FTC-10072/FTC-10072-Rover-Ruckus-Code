@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.RobotClasses.Arm;
 import org.firstinspires.ftc.teamcode.RobotClasses.DriveTrain;
 import org.firstinspires.ftc.teamcode.RobotClasses.Elevator;
 import org.firstinspires.ftc.teamcode.RobotClasses.HardwareRobot;
@@ -15,6 +16,7 @@ public class DisengageTest extends LinearOpMode {
     HardwareRobot robot = new HardwareRobot();
     DriveTrain driveTrain = new DriveTrain();
     Elevator elevator = new Elevator();
+    Arm arm = new Arm();
     //PhoneVision vision = new PhoneVision(this);
 
     ElapsedTime runtime = new ElapsedTime();
@@ -24,8 +26,23 @@ public class DisengageTest extends LinearOpMode {
         robot.init(hardwareMap);
         driveTrain.init(robot, this);
         elevator.init(robot, this);
+        double shortDistance = Math.sqrt(8.0) * 12 - 2;
+
+
+        elevator.detachFromLander();
+        driveTrain.turnToDegree(-15,.5, 1.0);
+        driveTrain.stop();
+        elevator.moveElevatorDown();
+        driveTrain.turnToDegree(15,.5, 1.0);
+        driveTrain.stop();
+        driveTrain.driveToDistance(shortDistance+15, 3.0);
+
+        elevator.lowerMarkerServo();
+        driveTrain.turnToDegree(90, .1, 2.5);
+        driveTrain.stop();
+        elevator.raiseMarkerServo();
         // ensure ratchet is locked
-        elevator.setRatchetLock(true);
+       /* elevator.setRatchetLock(true);
         elevator.closeClaw();
         elevator.moveElevatorDown();
         waitForStart();
@@ -40,6 +57,6 @@ public class DisengageTest extends LinearOpMode {
         elevator.openClaw();
         sleep(1000);
         elevator.moveElevatorDown();
-        sleep(4000);
+        sleep(4000);*/
     }
 }

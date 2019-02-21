@@ -6,8 +6,8 @@ import org.corningrobotics.enderbots.endercv.CameraViewDisplay;
 import org.firstinspires.ftc.teamcode.MineralResult;
 import org.firstinspires.ftc.teamcode.MineralVision;
 
-import static org.firstinspires.ftc.teamcode.MineralResult.MineralColor.YELLOW;
 import static org.firstinspires.ftc.teamcode.MineralResult.MineralColor.WHITE;
+import static org.firstinspires.ftc.teamcode.MineralResult.MineralColor.YELLOW;
 
 public class PhoneVision {
     private MineralVision vision;

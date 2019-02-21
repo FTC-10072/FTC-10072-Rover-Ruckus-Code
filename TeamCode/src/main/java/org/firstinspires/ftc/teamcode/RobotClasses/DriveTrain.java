@@ -27,9 +27,9 @@ public class DriveTrain {
     // Ku = 0.105
     // Tu = .866
 
-    private double TURN_P = 0.048;
+    private double TURN_P = 0.041;
     private double TURN_I = 0.0;
-    private double TURN_D = 0.00150;
+    private double TURN_D = 0.00315;
     private static final double MAX_DRIVE_SPEED = 0.9;
     private static final double MAX_TURN_SPEED = 0.7;
     private static final double GAIN = 0.1;
@@ -152,11 +152,14 @@ public class DriveTrain {
         // check if finished
         if(time.seconds() > timeout){
             stop();
+            setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             return false;
         }
         // stop motors
         stop();
-        resetAngle();
+        setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         return true;
     }
 
