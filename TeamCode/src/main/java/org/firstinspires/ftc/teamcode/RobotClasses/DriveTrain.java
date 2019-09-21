@@ -37,7 +37,7 @@ public class DriveTrain {
 
     private static final AxesOrder axes = AxesOrder.ZYX;
 
-    private static final int COUNTS_PER_REV = 1680; // count / rev
+    private static final int COUNTS_PER_REV = 1120; // count / rev
     private static final double WHEEL_DIAMETER = 4.0; // inches
     private static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * 3.141592; // distance / rev
     private static final double COUNTS_PER_INCH = COUNTS_PER_REV / WHEEL_CIRCUMFERENCE;
@@ -99,6 +99,52 @@ public class DriveTrain {
             return true;
         }
         return false;
+    }
+
+    public boolean strafeToDistance(int distance, double speed, double timeout){
+        if (currentOpMode.opModeIsActive()) {
+            int cpr = (int) (COUNTS_PER_INCH * .9);
+            int move = distance * cpr;
+
+            int newLeftFrontTarget = leftFrontMotor.getCurrentPosition() + move;
+            int newLeftBackTarget = leftBackMotor.getCurrentPosition() - move;
+            int newRightFrontTarget = rightFrontMotor.getCurrentPosition() - move;
+            int newRightBackTarget = rightBackMotor.getCurrentPosition() + move;
+
+            leftFrontMotor.setTargetPosition(newLeftFrontTarget);
+            leftBackMotor.setTargetPosition(newLeftBackTarget);
+            rightFrontMotor.setTargetPosition(newRightFrontTarget);
+            rightBackMotor.setTargetPosition(newRightBackTarget);
+
+            leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            ElapsedTime time = new ElapsedTime();
+
+            while (currentOpMode.opModeIsActive() && time.seconds() < timeout
+                    && leftFrontMotor.isBusy() && leftBackMotor.isBusy()
+                    && rightFrontMotor.isBusy() && rightBackMotor.isBusy()) {
+                // set power with correction
+                leftFrontMotor.setPower(speed);
+                rightFrontMotor.setPower(speed);
+                leftBackMotor.setPower(speed);
+                rightBackMotor.setPower(speed);
+            }
+            if (time.seconds() > timeout){
+                return false;
+            }
+            return true;
+
+        }
+        return false;
+
+
+
+
+
+
     }
 
     // turn to specific degree. for use in Auto
@@ -185,6 +231,57 @@ public class DriveTrain {
         // Output the safe vales to the motor drives.
         setLeftPower(left, MAX_DRIVE_SPEED);
         setRightPower(right, MAX_DRIVE_SPEED);
+    }
+
+
+
+    public void mecanumDrive(double x1, double y1, double x2){
+
+        double r = Math.hypot(x1,x2);
+
+        double Angle = Math.atan2(x1,x2) + Math.PI/4;
+        double rot = x2;
+
+        final double lf = r * Math.cos(Angle) + rot;
+        final double lb = r * Math.sin(Angle) + rot;
+        final double rf = r * Math.sin(Angle) - rot;
+        final double rb = r * Math.cos(Angle) - rot;
+
+        leftFrontMotor.setPower(lf);
+        leftBackMotor.setPower(lb);
+        rightFrontMotor.setPower(rf);
+        rightBackMotor.setPower(rb);
+
+
+    }
+
+
+    public void mecanumDriveFieldCentric(double x1, double y1, double x2){
+        double lx =  x1 , ly = y1;
+        double v  =  Math.sqrt(lx*lx + ly*ly);
+
+        double currAngle = Math.atan2(lx, ly);
+
+        double current = Math.toRadians(getAngle());
+
+
+
+        double r = Math.hypot(x1,x2);
+
+        double Angle = Math.atan2(x1,x2) + Math.PI/4;
+        double rot = x2;
+
+        final double lf = r * Math.cos(Angle) + rot;
+        final double lb = r * Math.sin(Angle) + rot;
+        final double rf = r * Math.sin(Angle) - rot;
+        final double rb = r * Math.cos(Angle) - rot;
+
+        leftFrontMotor.setPower(lf);
+        leftBackMotor.setPower(lb);
+        rightFrontMotor.setPower(rf);
+        rightBackMotor.setPower(rb);
+
+
     }
 
     public void stop(){
