@@ -69,7 +69,7 @@ public class HardwareRobot {
         move2Servo = hwMap.get(Servo.class, "Move_2_Servo");
 
 
-        gripperServo.setPosition(.5);
+        gripperServo.setPosition(1);
         move1Servo.setPosition(.5);
         move2Servo.setPosition(.5);
 

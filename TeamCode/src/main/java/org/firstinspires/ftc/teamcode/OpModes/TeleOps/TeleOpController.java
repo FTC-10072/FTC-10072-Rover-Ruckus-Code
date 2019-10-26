@@ -38,6 +38,7 @@ public class TeleOpController extends LinearOpMode {
 
         double leftStickY;
         double rightStickX;
+        double leftStickX;
         int direction = 1;
 
 
@@ -47,15 +48,26 @@ public class TeleOpController extends LinearOpMode {
         waitForStart();
 
         while(opModeIsActive()){
-            leftStickY  = direction * -gamepad1.left_stick_y;
+            leftStickY  = direction * gamepad1.left_stick_y;
+            leftStickX  = direction * gamepad1.left_stick_x;
             rightStickX = direction * gamepad1.right_stick_x;
 
-            if (gamepad1.a){
+            if (gamepad1.a && gamepad1.b){
                 direction *= -1;
             }
 
             // drive train
-            driveTrain.arcadeDrive(leftStickY, rightStickX);
+            driveTrain.arcadeDrive(leftStickY, rightStickX );
+
+            //move the gripper
+
+            if (gamepad1.a){
+                arm.raisegripper();
+            }
+
+            if (gamepad1.b){
+                arm.dropgripper();
+            }
 
 
         }

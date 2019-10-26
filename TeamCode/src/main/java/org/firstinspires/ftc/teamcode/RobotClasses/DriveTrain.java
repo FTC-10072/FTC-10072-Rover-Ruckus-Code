@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
@@ -22,6 +23,8 @@ public class DriveTrain {
 
     private BNO055IMU imu;
     private Orientation lastAngles = new Orientation();
+    Orientation angles;
+    Acceleration gravity;
     private double globalAngle;
 
     // Ku = 0.105
@@ -56,12 +59,238 @@ public class DriveTrain {
 
         imu = robot.imu;
 
+
+
         resetAngle();
+    }
+
+    public double convertify(double degrees){
+        if (degrees > 179){
+            degrees = -(360 - degrees);
+        } else if(degrees < -180){
+            degrees = 360 + degrees;
+        } else if(degrees > 360){
+            degrees = degrees - 360;
+        }
+        return degrees;
+    }
+
+    public double devertify(double degrees){
+        if (degrees < 0){
+            degrees = degrees + 360;
+        }
+        return degrees;
+    }
+
+
+
+    public void turnToRight (double angle, double speedDirection){
+        double TOLERANCE = .5;
+        //variable to check if the angle has been reached
+        boolean goalReached = false;
+        //currentAngle
+        double currAngle;
+        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        angle = convertify(lastAngles.firstAngle + angle);
+
+        while (!goalReached) {
+            lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            currAngle = lastAngles.firstAngle;
+
+
+            currentOpMode.telemetry.addData("currAngle", currAngle);
+            currentOpMode.telemetry.update();
+            if ((currAngle <= angle + TOLERANCE) && (currAngle >= angle - TOLERANCE)) {
+                goalReached = true;
+                break;
+            }
+
+                leftFrontMotor.setPower(speedDirection);
+                leftBackMotor.setPower(speedDirection);
+                rightFrontMotor.setPower(-speedDirection);
+                rightBackMotor.setPower(-speedDirection);
+
+
+        }
+        if (goalReached) {
+            leftFrontMotor.setPower(0);
+            leftBackMotor.setPower(0);
+            rightFrontMotor.setPower(0);
+            rightBackMotor.setPower(0);
+
+
+        }
+        currentOpMode.sleep(500);
+
+    }
+
+    public void turnToLeft (double angle, double speedDirection){
+        double TOLERANCE = .5;
+        //variable to check if the angle has been reached
+        boolean goalReached = false;
+        //currentAngle
+        double currAngle;
+        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        angle = -convertify(lastAngles.firstAngle + angle);
+
+        while (!goalReached) {
+            lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            currAngle = lastAngles.firstAngle;
+
+
+            currentOpMode.telemetry.addData("currAngle", currAngle);
+            currentOpMode.telemetry.update();
+            if ((currAngle >= -angle - TOLERANCE) && (currAngle <= -angle + TOLERANCE)) {
+                goalReached = true;
+                break;
+            }
+
+            leftFrontMotor.setPower(-speedDirection);
+            leftBackMotor.setPower(-speedDirection);
+            rightFrontMotor.setPower(speedDirection);
+            rightBackMotor.setPower(speedDirection);
+
+
+        }
+        if (goalReached) {
+            leftFrontMotor.setPower(0);
+            leftBackMotor.setPower(0);
+            rightFrontMotor.setPower(0);
+            rightBackMotor.setPower(0);
+
+
+        }
+        currentOpMode.sleep(500);
+
+    }
+
+
+
+
+
+    public void turnToDegree(double degrees, double speedDirection){
+        //<editor-fold desc="Initialize">
+        angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        double yaw = -angles.firstAngle;//make this negative
+        currentOpMode.telemetry.addData("Speed Direction", speedDirection);
+        currentOpMode.telemetry.addData("Yaw", yaw);
+        currentOpMode.telemetry.update();
+        //
+        currentOpMode.telemetry.addData("stuff", speedDirection);
+        currentOpMode.telemetry.update();
+        //
+        double first;
+        double second;
+        //</editor-fold>
+        //
+        if (speedDirection > 0){//set target positions
+            //<editor-fold desc="turn right">
+            if (degrees > 10){
+                first = (degrees - 10) + devertify(yaw);
+                second = degrees + devertify(yaw);
+            }else{
+                first = devertify(yaw);
+                second = degrees + devertify(yaw);
+            }
+            //</editor-fold>
+        }else{
+            //<editor-fold desc="turn left">
+            if (degrees > 10){
+                first = devertify(-(degrees - 10) + devertify(yaw));
+                second = devertify(-degrees + devertify(yaw));
+            }else{
+                first = devertify(yaw);
+                second = devertify(-degrees + devertify(yaw));
+            }
+            //
+            //</editor-fold>
+        }
+        //
+        //<editor-fold desc="Go to position">
+        Double firsta = convertify(first - 5);//175
+        Double firstb = convertify(first + 5);//-175
+        //
+        turnWithEncoder(speedDirection);
+        //
+        if (Math.abs(firsta - firstb) < 11) {
+            while (!(firsta < yaw && yaw < firstb) && currentOpMode.opModeIsActive()) {//within range?
+                angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                gravity = imu.getGravity();
+                yaw = -angles.firstAngle;
+                currentOpMode.telemetry.addData("Position", yaw);
+                currentOpMode.telemetry.addData("first before", first);
+                currentOpMode.telemetry.addData("first after", convertify(first));
+                currentOpMode.telemetry.update();
+            }
+        }else{
+            //
+            while (!((firsta < yaw && yaw < 180) || (-180 < yaw && yaw < firstb)) && currentOpMode.opModeIsActive()) {//within range?
+                angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                gravity = imu.getGravity();
+                yaw = -angles.firstAngle;
+                currentOpMode.telemetry.addData("Position", yaw);
+                currentOpMode.telemetry.addData("first before", first);
+                currentOpMode.telemetry.addData("first after", convertify(first));
+                currentOpMode.telemetry.update();
+            }
+        }
+        //
+        Double seconda = convertify(second - 5);//175
+        Double secondb = convertify(second + 5);//-175
+        //
+        turnWithEncoder(speedDirection / 3);
+        //
+        if (Math.abs(seconda - secondb) < 11) {
+            while (!(seconda < yaw && yaw < secondb) && currentOpMode.opModeIsActive()) {//within range?
+                angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                gravity = imu.getGravity();
+                yaw = -angles.firstAngle;
+                currentOpMode.telemetry.addData("Position", yaw);
+                currentOpMode.telemetry.addData("second before", second);
+                currentOpMode.telemetry.addData("second after", convertify(second));
+                currentOpMode.telemetry.update();
+            }
+            while (!((seconda < yaw && yaw < 180) || (-180 < yaw && yaw < secondb)) && currentOpMode.opModeIsActive()) {//within range?
+                angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                gravity = imu.getGravity();
+                yaw = -angles.firstAngle;
+                currentOpMode.telemetry.addData("Position", yaw);
+                currentOpMode.telemetry.addData("second before", second);
+                currentOpMode.telemetry.addData("second after", convertify(second));
+                currentOpMode.telemetry.update();
+            }
+            leftFrontMotor.setPower(0);
+            rightFrontMotor.setPower(0);
+            leftBackMotor.setPower(0);
+            rightBackMotor.setPower(0);
+        }
+        //</editor-fold>
+        //
+        leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public void turnWithEncoder(double input){
+        leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //
+        leftFrontMotor.setPower(input);
+        leftBackMotor.setPower(input);
+        rightFrontMotor.setPower(-input);
+        rightBackMotor.setPower(-input);
     }
 
     // drive to specified distance with specified precision
     @SuppressLint("Assert")
-    public boolean driveToDistance(double targetDistance, double timeout){
+    public boolean driveToDistance(double targetDistance, double timeout,double power){
         if(currentOpMode.opModeIsActive()) {
             assert timeout > 0;
             // set new target position
@@ -87,8 +316,8 @@ public class DriveTrain {
                     && leftFrontMotor.isBusy() && leftBackMotor.isBusy()
                     && rightFrontMotor.isBusy() && rightBackMotor.isBusy()) {
                 // set power with correction
-                setLeftPower(1.0, MAX_DRIVE_SPEED, checkDirection());
-                setRightPower(1.0, MAX_DRIVE_SPEED);
+                setLeftPower(power, MAX_DRIVE_SPEED, checkDirection());
+                setRightPower(power, MAX_DRIVE_SPEED);
             }
             // check if finished
             if (time.seconds() > timeout) return false;
@@ -146,7 +375,7 @@ public class DriveTrain {
 
 
     }
-
+    //probably a better turning alg
     // turn to specific degree. for use in Auto
     // positive is to the left, negative is to the right
     @SuppressLint("Assert")
@@ -182,7 +411,7 @@ public class DriveTrain {
             setLeftPower(power, MAX_TURN_SPEED);
             setRightPower(-power, MAX_TURN_SPEED);
             // update values
-            currentAngle = getAngle();
+            currentAngle = -    getAngle();
             previousDiff = diff;
             diff = currentAngle - targetAngle;
             currentOpMode.telemetry.addData("target", targetAngle);
@@ -208,6 +437,9 @@ public class DriveTrain {
         setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         return true;
     }
+
+
+
 
 
     public void arcadeDrive(double move, double turn){
@@ -275,6 +507,13 @@ public class DriveTrain {
         final double lb = r * Math.sin(Angle) + rot;
         final double rf = r * Math.sin(Angle) - rot;
         final double rb = r * Math.cos(Angle) - rot;
+
+        currentOpMode.telemetry.addData("lf", lf);
+        currentOpMode.telemetry.addData("lb", lb);
+        currentOpMode.telemetry.addData("rf", rf);
+        currentOpMode.telemetry.addData("rb", rb);
+        currentOpMode.telemetry.update();
+
 
         leftFrontMotor.setPower(lf);
         leftBackMotor.setPower(lb);

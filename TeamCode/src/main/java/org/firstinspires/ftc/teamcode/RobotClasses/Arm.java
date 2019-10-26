@@ -17,11 +17,19 @@ public class Arm {
 
         currentOpMode = opMode;
         gripperServo = robot.gripperServo;
+        gripperServo.setPosition(1);
+
+
+
+
+    }
+
+
+    public void dropgripper(){
         gripperServo.setPosition(.5);
-
-
-
-
+    }
+    public void raisegripper(){
+        gripperServo.setPosition(1);
     }
 
 
